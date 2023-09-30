@@ -4,26 +4,21 @@ import { Provider } from "react-redux";
 import { UserInfo, storageName } from "./UserInfo";
 import { createStore } from "../../redux/store";
 
-const setupLocalStorageMock = (mocks = {}) => {
-  const localStorageMock = {
-    getItem: jest.fn().mockImplementation(() => "null"),
-    setItem: jest.fn(),
-    ...mocks
-  };
-
-  Object.keys(localStorageMock).forEach(method => {
-    Storage.prototype[method] = localStorageMock[method];
-  });
+const defaultLocalStorageService = {
+  getItem: () => "null",
+  setItem: () => {}
 };
 
-const renderComponent = (props = {}) =>
+const defaultServices = {
+  localStorageService: defaultLocalStorageService
+};
+
+const renderComponent = (sevices = defaultServices) =>
   render(
-    <Provider store={createStore()}>
-      <UserInfo {...props} />
+    <Provider store={createStore(sevices)}>
+      <UserInfo />
     </Provider>
   );
-
-beforeEach(setupLocalStorageMock);
 
 describe("UserInfo", () => {
   it("renders without an error", () => {
@@ -39,11 +34,12 @@ describe("UserInfo", () => {
       email
     };
 
-    setupLocalStorageMock({
-      getItem: jest.fn().mockImplementation(() => JSON.stringify(initialValue))
-    });
+    const localStorageService = {
+      ...defaultLocalStorageService,
+      getItem: () => JSON.stringify(initialValue)
+    };
 
-    const { getByRole } = renderComponent();
+    const { getByRole } = renderComponent({ localStorageService });
 
     const nameField = getByRole("textbox", { name: /name/i });
     const emailField = getByRole("textbox", { name: /email/i });
@@ -53,11 +49,12 @@ describe("UserInfo", () => {
   });
 
   it("does not fail when data is empty", () => {
-    setupLocalStorageMock({
-      getItem: jest.fn().mockImplementation(() => "null")
-    });
+    const localStorageService = {
+      ...defaultLocalStorageService,
+      getItem: () => JSON.stringify(null)
+    };
 
-    const { getByRole } = renderComponent();
+    const { getByRole } = renderComponent({ localStorageService });
 
     const nameField = getByRole("textbox", { name: /name/i });
     const emailField = getByRole("textbox", { name: /email/i });
@@ -67,14 +64,14 @@ describe("UserInfo", () => {
   });
 
   it("updates external data source", () => {
-    const inputEmail = "example@ss.com";
     const setItem = jest.fn();
-
-    setupLocalStorageMock({
+    const localStorageService = {
+      ...defaultLocalStorageService,
       setItem
-    });
+    };
+    const inputEmail = "example@ss.com";
 
-    const { getByRole } = renderComponent();
+    const { getByRole } = renderComponent({ localStorageService });
 
     const emailField = getByRole("textbox", { name: /email/i });
 

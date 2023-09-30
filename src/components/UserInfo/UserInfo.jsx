@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { update, init } from "../../redux/slices/userInfo";
+import { update, initialize } from "../../redux/slices/userInfo";
 
 export const storageName = "userInfo";
 
@@ -9,21 +9,12 @@ export const UserInfo = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const initialValue = JSON.parse(localStorage.getItem(storageName));
-
-    if (initialValue) {
-      dispatch(init(initialValue));
-    }
+    dispatch(initialize());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChange = field => e => {
     dispatch(update({ field, value: e.target.value }));
-
-    localStorage.setItem(
-      storageName,
-      JSON.stringify({ name, email, [field]: e.target.value })
-    );
   };
 
   return (
