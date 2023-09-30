@@ -1,20 +1,20 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+
 import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { update, initialize } from "../../redux/slices/userInfo";
+import { useUserInfoBehavior, useUserInfoData } from "../../redux/hooks";
 
 export const storageName = "userInfo";
 
 export const UserInfo = () => {
-  const { name, email } = useSelector(state => state.userInfo);
-  const dispatch = useDispatch();
+  const { name, email } = useUserInfoData();
+  const { initialize, update } = useUserInfoBehavior();
 
   useEffect(() => {
-    dispatch(initialize());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    initialize();
   }, []);
 
   const handleChange = field => e => {
-    dispatch(update({ field, value: e.target.value }));
+    update({ field, value: e.target.value });
   };
 
   return (
